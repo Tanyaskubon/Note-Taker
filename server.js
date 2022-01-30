@@ -6,7 +6,7 @@ const notes  = require('./db/db.json');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-app.use(express.static("public"));
+app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -18,26 +18,29 @@ app.get("/notes",(req, res) => {
     res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-app.get('/api/notes', (req, res) => {
-    res.json(notes)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-app.post('/api/notes', (req, res) => {
-    const createNotes = (req.body);
-    fs.readFile("./public/assets/db.json", "utf-8", (err, data) => {
-        notes = JSON.parse(data);
-        createNote.id = parseInt(notes.length + 1);
-        notes.push(createNote);
-    
-        console.log(notes);
-    
-        fs.writeFile("./public/assets/db.json", JSON.stringify(notes), (err) => {
-          if (err) throw err;
-          res.json(notes);
-        });
-      });
-    });
-    
+function createNewNote(body, notesArray) {
+    const note = body;
+    notesArray.push(note);
+    fs.writeFileSync(
+        path.join(__dirname, './db/db.json'),
+        JSON.stringify({ notes: notesArray}, null, 2)
+    );
+    return note;
+}
+
+app.post('api/notes', (req, res) => {
+    req.body.id = notes.length.toString();
+    const note = createNewNote(req.body, notes);
+    res.json(note);
+});
+
+
+
+
 
 
 
